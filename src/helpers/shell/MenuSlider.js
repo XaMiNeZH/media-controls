@@ -84,6 +84,7 @@ class MenuSlider extends St.BoxLayout {
                 const ms = this.slider.value * this.transition.duration;
                 this.emit("seeked", Math.floor(ms * 1000));
                 if (this.dragPaused && this.get_stage() != null) {
+                    this.ensureTransitionAttached();
                     this.transition.advance(ms);
                     this.transition.start();
                     this.dragPaused = false;
@@ -113,6 +114,12 @@ class MenuSlider extends St.BoxLayout {
                 final: final,
             }),
         });
+        // Prevent Clutter from detaching the transition on completion. Once
+        // detached, transition.advance()/start() become no-ops on the slider,
+        // so seeking and resuming would silently fail to update the value.
+        if (typeof this.transition.set_remove_on_complete === "function") {
+            this.transition.set_remove_on_complete(false);
+        }
 
         this.transition.connectObject(
             "marker-reached",
@@ -169,6 +176,7 @@ class MenuSlider extends St.BoxLayout {
         position = position / 1000;
         this.elapsedLabel.text = msToHHMMSS(position);
         this.slider.value = position / this.rate / this.transition.duration;
+        this.ensureTransitionAttached();
         this.transition.advance(position / this.rate);
     }
 
@@ -180,10 +188,19 @@ class MenuSlider extends St.BoxLayout {
     setLength(length) {
         length = length / 1000;
         this.durationLabel.text = msToHHMMSS(length);
-        this.slider.value = 0;
         this.transition.set_duration(length / this.rate);
-        this.transition.rewind();
+        this.ensureTransitionAttached();
         this.updateMarkers();
+    }
+
+    /**
+     * @private
+     * @returns {void}
+     */
+    ensureTransitionAttached() {
+        if (this.slider.get_transition && this.slider.get_transition("progress") == null) {
+            this.slider.add_transition("progress", this.transition);
+        }
     }
 
     /**
@@ -202,6 +219,7 @@ class MenuSlider extends St.BoxLayout {
      */
     resumeTransition() {
         if (this.disabled === false && this.get_stage() != null) {
+            this.ensureTransitionAttached();
             this.transition.start();
         }
     }

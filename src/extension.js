@@ -706,23 +706,32 @@ export default class MediaControls extends Extension {
      * @returns {void}
      */
     updateMediaNotificationVisiblity(shouldReset = false) {
-        const MprisSource = Mpris.MprisSource ?? Mpris.MediaSection;
-        const mediaSource =
-            Main.panel.statusArea.dateMenu._messageList._messageView?._mediaSource ??
-            Main.panel.statusArea.dateMenu._messageList._mediaSection;
+        try {
+            const MprisSource = Mpris.MprisSource ?? Mpris.MediaSection;
+            const mediaSource =
+                Main.panel.statusArea.dateMenu._messageList._messageView?._mediaSource ??
+                Main.panel.statusArea.dateMenu._messageList._mediaSection;
 
-        if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
-            MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
-            this.mediaSectionAddFunc = null;
-            mediaSource._onProxyReady();
-        } else {
-            this.mediaSectionAddFunc = MprisSource.prototype._addPlayer;
-            MprisSource.prototype._addPlayer = function () {};
-            if (mediaSource._players != null) {
-                for (const player of mediaSource._players.values()) {
-                    mediaSource._onNameOwnerChanged(null, null, [player._busName, player._busName, ""]);
+            if (MprisSource?.prototype == null) {
+                errorLog("Failed to locate MPRIS source class for media notifications");
+                return;
+            }
+
+            if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
+                MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
+                this.mediaSectionAddFunc = null;
+                mediaSource?._onProxyReady?.();
+            } else {
+                this.mediaSectionAddFunc = MprisSource.prototype._addPlayer;
+                MprisSource.prototype._addPlayer = function () {};
+                if (mediaSource?._players != null) {
+                    for (const player of mediaSource._players.values()) {
+                        mediaSource._onNameOwnerChanged(null, null, [player._busName, player._busName, ""]);
+                    }
                 }
             }
+        } catch (error) {
+            errorLog("Failed to update media notification visibility:", error);
         }
     }
 

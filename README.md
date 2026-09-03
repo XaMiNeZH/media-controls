@@ -2,6 +2,8 @@
 
 Show controls and information of the currently playing media in the panel.
 
+This is a maintenance fork of the archived [sakithb/media-controls](https://github.com/sakithb/media-controls) project. It keeps the original UUID so it can replace an existing install and preserves your settings. Version 2.5.0 adds GNOME 50 support for Fedora 44 (and other GNOME 50 desktops).
+
 ## Features
 
 - Customize the extension the way you want it
@@ -15,17 +17,34 @@ Show controls and information of the currently playing media in the panel.
 
 ## How to install
 
-#### Install from extensions.gnome.org (Recommended)
+Do **not** install from [extensions.gnome.org](https://extensions.gnome.org/extension/4470/media-controls/). That listing is still on 2.4.4 and only declares GNOME 46–49, so Fedora 44 / GNOME 50 will refuse to enable it.
 
-[<img src="assets/images/ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
+#### Build from this repository (recommended)
 
-#### Manual installation
+Requires `pnpm`, `gnome-extensions`, `glib-compile-resources`, and `gettext`.
 
-Install from source
+```bash
+git clone https://github.com/xaminezh/media-controls.git
+cd media-controls
+pnpm install
+pnpm build
+gnome-extensions install --force dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip
+```
 
-- Download archive file from the releases tab
+On Wayland (Fedora Workstation default), log out and log back in, then enable the extension:
+
+```bash
+gnome-extensions enable mediacontrols@cliffniff.github.com
+```
+
+You can also enable it from Extension Manager after the session restart.
+
+#### Install a release zip
+
+- Download the archive from this fork's releases tab
 - Open a terminal in the directory containing the downloaded file
-- Install and enable the extension by executing `gnome-extensions install extension.zip --force` in the terminal
+- Run `gnome-extensions install --force extension.zip`
+- Log out and back in on Wayland, then enable the extension
 
 ---
 
@@ -65,11 +84,11 @@ This project uses pnpm for package management and script execution. Make sure yo
 
 1. Clone the repository
 2. Install dependencies: `pnpm install`
-3. Build and install: `pnpm reinstall`
-4. Enable the extension: `pnpm run enable`
-5. Open preferences to test: `pnpm run prefs`
+3. Build and install: `pnpm build` then `pnpm run ext:install`
+4. Enable the extension: `pnpm run ext:enable`
+5. Open preferences to test: `pnpm run ext:prefs`
 
-For active development, use `pnpm reload` (X11) or `pnpm debug` (Wayland) to test changes.
+For active development, use `pnpm debug` (Wayland) to test changes.
 
 ---
 
@@ -77,15 +96,11 @@ For active development, use `pnpm reload` (X11) or `pnpm debug` (Wayland) to tes
 
 Any type of contribution is appreciated! If you have any suggestions for new features feel free to open a new issue.
 
-If you are interested in translating, download the [po file](https://github.com/sakithb/media-controls/blob/main/assets/locale/mediacontrols%40cliffniff.github.com.pot) and translate it. Then open a pull request with the translated file. You can use [Gtranslator](https://flathub.org/apps/org.gnome.Gtranslator) or [Poedit](https://flathub.org/apps/net.poedit.Poedit) to translate.
+If you are interested in translating, download the [po file](https://github.com/xaminezh/media-controls/blob/main/assets/locale/mediacontrols%40cliffniff.github.com.pot) and translate it. Then open a pull request with the translated file. You can use [Gtranslator](https://flathub.org/apps/org.gnome.Gtranslator) or [Poedit](https://flathub.org/apps/net.poedit.Poedit) to translate.
 
 If you are interested in contributing code. There are no specific guidelines for contributing. Just make sure you follow the coding style of the project. To update the translation files run `pnpm run translations` in the extensions directory after your changes are done. This will update the files in the locale folder.
 
-<a href="https://github.com/sakithb/media-controls/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sakithb/media-controls" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
+---
 
 ## Screenshots
 
